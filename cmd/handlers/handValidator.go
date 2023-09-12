@@ -212,3 +212,115 @@ func MyValidateDate(data string) (err error) {
 
 	return
 }
+
+func ValidateEmpty(data *domain.Product) (ok bool, err error) {
+
+	switch {
+
+	case (data).Price <= 0.0:
+		err = errors.New("Price empty or negative")
+		ok = false
+	case (data).Expiration == "":
+		err = errors.New("Expiration empty")
+		ok = false
+	case (data).Name == "":
+		err = errors.New("Name empty")
+		ok = false
+	case (data).Code_value == "":
+		err = errors.New("Codevalue empty")
+		ok = false
+	case (data).Quantity <= 0:
+		err = errors.New("Quantity empty o negative number")
+		ok = false
+	default:
+		err = nil
+		ok = false
+		return
+
+	}
+
+	return
+}
+
+func ValidateCodeValue(data *domain.Product) (err error) {
+	//tiene que ser todo mayuscula almenos 1 letra y un numero
+	var (
+		cletra = 0
+		cnum   = 0
+		flag   = false
+	)
+	for i, v := range (*data).Code_value {
+		fmt.Println(v, i)
+		switch {
+		case i == 0 && v == 48:
+			err = errors.New("El primer caracter no puede ser cero")
+			return
+		case v >= 65 && v <= 90:
+			cletra++
+			flag = true
+			err = nil
+		case i != 0 && v >= 48 && v <= 57:
+			flag = true
+			cnum++
+			err = nil
+
+		default:
+
+		}
+
+	}
+	if cletra == 0 {
+		err = errors.New("Debe haber almenos una letra")
+	}
+	if flag == false && cnum == 0 {
+		err = errors.New("Debe haber almenos un numero")
+	}
+	return
+}
+
+func ValidateDate(data *domain.Product) (err error) {
+
+	if len((*data).Expiration) != 10 {
+		err = errors.New("DATE NO FORMAT dd/mm/yyyy")
+		return
+	}
+	v := (*data).Expiration
+	fmt.Println(v)
+	fmt.Println(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9])
+
+	if v[2] != 47 && v[5] != 47 {
+		err = errors.New("separate parameters invalid please use /")
+	}
+
+	dd, err2 := strconv.Atoi(v[0:2])
+	if err2 != nil {
+		err = errors.New("Days no valid")
+	}
+	fmt.Println(dd)
+	mm, err3 := strconv.Atoi(v[3:5])
+	if err3 != nil {
+		err = errors.New("Mouth no valid")
+		return
+	}
+	fmt.Println(mm)
+	yyyy, err4 := strconv.Atoi(v[6:])
+	if err4 != nil {
+		err = errors.New("Year no valid")
+		return
+	}
+	fmt.Println(yyyy)
+	switch {
+	case dd > 31 || dd <= 0:
+		err = errors.New("days out of range ")
+		return
+	case mm > 12 || mm <= 0:
+		err = errors.New("mouth out of range ")
+		return
+	case yyyy < 2023:
+		err = errors.New("year out of range ")
+		return
+	default:
+	}
+
+	return
+}

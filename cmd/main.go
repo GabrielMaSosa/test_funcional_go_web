@@ -8,14 +8,10 @@ import (
 	product "github.com/GabrielMaSosa/test_funcional/internal/products"
 	"github.com/GabrielMaSosa/test_funcional/pkg"
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 )
 
 func main() {
-	err := godotenv.Load("../.env")
-	if err != nil {
-		panic(err)
-	}
+	os.Setenv("TOKEN", "123456")
 	path := os.Getenv("MYPATH")
 	// inyectamos las dependencias
 	fmt.Println("mivar", path)

@@ -31,6 +31,7 @@ func Rutas(g *gin.RouterGroup, h *HandlerProduct) {
 	g.PATCH("/:id", h.PartialSave())
 	g.GET("/:id", h.GetProductByIdPatch())
 	g.GET("/search", h.SearchProduct())
+	g.POST("/add", h.Save())
 }
 
 var (
@@ -207,6 +208,50 @@ func (h *HandlerProduct) SearchProduct() gin.HandlerFunc {
 		}
 
 		ctx.JSON(200, valore)
+		return
+	}
+}
+
+func (h *HandlerProduct) Save() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+
+		if mitoken := ctx.GetHeader("token"); mitoken != os.Getenv("TOKEN") {
+			ctx.JSON(http.StatusUnauthorized, gin.H{"msg": "Unauthorize"})
+			return
+		}
+		dta := domain.Product{}
+		if err := ctx.ShouldBindJSON(&dta); err != nil {
+
+			ctx.JSON(http.StatusBadRequest, dta)
+
+			return
+		}
+
+		if _, err := ValidateEmpty(&dta); err != nil {
+
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		if err := ValidateCodeValue(&dta); err != nil {
+
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+
+		}
+		if err := ValidateDate(&dta); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+
+		}
+		//esto hago para agregar a mi db simulada
+		valxx, errxx := h.service.ServiNewItem(dta)
+		if errxx != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "internal"})
+			return
+		}
+
+		ctx.JSON(201, valxx)
 		return
 	}
 }
