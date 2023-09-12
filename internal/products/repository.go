@@ -1,6 +1,6 @@
 package product
 
-import "github.com/GabrielMaSosa/otherverbs/internal/domain"
+import "github.com/GabrielMaSosa/test_funcional/internal/domain"
 
 type ProductRepository interface {
 	GetAll() (ret []domain.Product, err error)

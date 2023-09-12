@@ -1,6 +1,6 @@
 package product
 
-import "github.com/GabrielMaSosa/otherverbs/internal/domain"
+import "github.com/GabrielMaSosa/test_funcional/internal/domain"
 
 type ProductService interface {
 	ServiceGetAll() (dt []domain.Product, err error)

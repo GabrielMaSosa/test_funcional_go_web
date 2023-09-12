@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"os"
 
-	"github.com/GabrielMaSosa/otherverbs/internal/domain"
+	"github.com/GabrielMaSosa/test_funcional/internal/domain"
 )
 
 func ReadAll(data string) (ret []domain.Product, err error) {

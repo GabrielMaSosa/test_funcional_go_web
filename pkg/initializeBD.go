@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"os"
 
-	"github.com/GabrielMaSosa/otherverbs/internal/domain"
+	"github.com/GabrielMaSosa/test_funcional/internal/domain"
 )
 
 func InitilizeBD(path string) (dt []*domain.Product, err error) {

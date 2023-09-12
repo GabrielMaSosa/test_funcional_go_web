@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/GabrielMaSosa/otherverbs/internal/domain"
-	"github.com/GabrielMaSosa/otherverbs/pkg/store"
+	"github.com/GabrielMaSosa/test_funcional/internal/domain"
+	"github.com/GabrielMaSosa/test_funcional/pkg/store"
 )
 
 //estructura con puntero hacia la base de datos este caso slice exportado
