@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"bytes"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -73,6 +75,91 @@ func TestFuncionalHandlerProductGetByID(t *testing.T) {
 		//assert
 
 	})
+	t.Run("Happy path get all", func(t *testing.T) {
+		//arrange
+		expectedStatusCode := 200
+		expectBodty := `[{"id": 1,"name": "Oil - Margarine","quantity": 439,"code_value": "S82254D","is_published": true,"expiration": "15/12/2021","price": 71.42},
+		{"id": 2,"name": "Pineapple - Canned, Rings","quantity": 345,"code_value": "M4637","is_published": true,"expiration": "09/08/2021","price": 352.79}]`
+
+		expectedHeaders := http.Header{
+			"Content-Type": []string{"application/json; charset=utf-8"},
+		}
+		// --> input
+		request := httptest.NewRequest(http.MethodGet, "/products", nil)
+		request.Header.Add("token", "123456")
+		response := httptest.NewRecorder()
+		r := createServer()
+		// act
+		r.ServeHTTP(response, request)
+
+		// assert
+		assert.Equal(t, expectedStatusCode, response.Code)
+		assert.JSONEq(t, string(expectBodty), response.Body.String(), "error")
+		assert.Equal(t, expectedHeaders, response.Header())
+		//assert
+
+	})
+	t.Run("Happy path POST", func(t *testing.T) {
+		//arrange
+		expectedStatusCode := 201
+		var expectBodty = "null"
+
+		expectedHeaders := http.Header{
+			"Content-Type": []string{"application/json; charset=utf-8"},
+		}
+		// --> input
+		mibdy := domain.Product{
+			ID:           8,
+			Name:         "aceite - Margarine",
+			Quantity:     439,
+			Code_value:   "S82254DA",
+			Is_published: true,
+			Expiration:   "15/12/2025",
+			Price:        71.42,
+		}
+
+		var buf bytes.Buffer
+		json.NewEncoder(&buf).Encode(mibdy)
+
+		request := httptest.NewRequest(http.MethodPost, "/products/add", &buf)
+		request.Header.Add("token", "123456")
+		response := httptest.NewRecorder()
+		r := createServer()
+		// act
+		r.ServeHTTP(response, request)
+
+		// assert
+		assert.Equal(t, expectedStatusCode, response.Code)
+		assert.JSONEq(t, expectBodty, response.Body.String(), "error POST")
+		assert.Equal(t, expectedHeaders, response.Header())
+		//assert
+
+	})
+
+	t.Run("Happy path DELETE", func(t *testing.T) {
+		//arrange
+		expectedStatusCode := 200
+		var expectBodty = `{"msg": "Succesful delete"}`
+
+		expectedHeaders := http.Header{
+			"Content-Type": []string{"application/json; charset=utf-8"},
+		}
+
+		request := httptest.NewRequest(http.MethodDelete, "/products/1", nil)
+		request.Header.Add("token", "123456")
+		response := httptest.NewRecorder()
+		r := createServer()
+		// act
+		r.ServeHTTP(response, request)
+
+		// assert
+		assert.Equal(t, expectedStatusCode, response.Code)
+		assert.JSONEq(t, expectBodty, response.Body.String(), "error DELETE")
+		assert.Equal(t, expectedHeaders, response.Header())
+		//assert
+
+	})
+
 	t.Run("One error id negative get by id", func(t *testing.T) {
 		//arrange
 		//levanto servrer
