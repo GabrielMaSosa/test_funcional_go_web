@@ -9,4 +9,5 @@ type ProductService interface {
 	UpdatePartial(id int, data map[string]interface{}) (dt *domain.Product, err error)
 	ServiGetById(id int) (dt *domain.Product, err error)
 	ServiGetPriceMayor(price float64) (dt []domain.Product, err error)
+	ServiNewItem(data domain.Product) (ret *domain.Product, err error)
 }

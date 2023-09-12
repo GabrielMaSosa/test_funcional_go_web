@@ -9,6 +9,7 @@ type ProductRepository interface {
 	GetById(id int) (ret *domain.Product, err error)
 	PartialUpdate(id int, data map[string]interface{}) (ret *domain.Product, err error)
 	GetPriceMayor(price float64) (dt []domain.Product, err error)
+	SaveNewProduct(data domain.Product) (ret *domain.Product, err error)
 }
 
 // esta estructura vamos a usar solo para el PATCH

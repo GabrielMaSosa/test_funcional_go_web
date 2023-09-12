@@ -6,49 +6,40 @@ import (
 	"reflect"
 
 	"github.com/GabrielMaSosa/test_funcional/internal/domain"
-	"github.com/GabrielMaSosa/test_funcional/pkg/store"
 )
 
-//estructura con puntero hacia la base de datos este caso slice exportado
-
-type RepositoryImpl struct {
+type RepositoryImplTesting struct {
 	bd []domain.Product
 }
 
-var (
-	ErrDataNotFound = errors.New("Data not found")
-	//para db vacias simulamos este error de abajo
-	ErrDBNotInitialize = errors.New("Fail in DB")
-)
+//estructura con puntero hacia la base de datos este caso slice exportados
 
 //constructor
 
-func NewRepository(dbex []domain.Product) (ret RepositoryImpl) {
+func NewRepositoryTesting(dbex []domain.Product) (ret RepositoryImplTesting) {
 	ret.bd = dbex
 	return
 }
 
-func (r *RepositoryImpl) GetAll() (ret []domain.Product, err error) {
-
-	ret, err = store.ReadAll("../products.json")
-
+func (r *RepositoryImplTesting) GetAll() (ret []domain.Product, err error) {
+	ret = r.bd
 	return
 
 }
 
-func (r *RepositoryImpl) Update(id int, data domain.Product) (ret *domain.Product, err error) {
+func (r *RepositoryImplTesting) Update(id int, data domain.Product) (ret *domain.Product, err error) {
 	fmt.Println("status repo", data)
 	fmt.Println(id)
-	dbdata, _ := store.ReadAll("../products.json")
 
 	flag := false
-	for _, v := range dbdata {
+	for i, v := range r.bd {
 		if v.ID == id {
 			//atento a las asignaciones con puntero
 			//repasar mas
 			v = data
 			ret = &data
 			flag = true
+			r.bd[i] = data
 			fmt.Println("valor despues del cambio", v)
 			fmt.Println("encontre repo")
 		}
@@ -57,14 +48,14 @@ func (r *RepositoryImpl) Update(id int, data domain.Product) (ret *domain.Produc
 	if flag == false {
 		//el item no esta enonces debemos agregarlo
 
-		dbdata = append(dbdata, data)
-		store.WriteAll("../products.json", dbdata)
+		r.bd = append(r.bd, data)
+
 		err = nil
 		ret = &data
 		return
 	}
 	if flag {
-		store.WriteAll("../products.json", dbdata)
+
 	}
 	//no hay muchos errores que poner aca
 	//ya que si llegamos hasta aca
@@ -73,22 +64,20 @@ func (r *RepositoryImpl) Update(id int, data domain.Product) (ret *domain.Produc
 	return
 }
 
-func (r *RepositoryImpl) Delete(id int) (ret *domain.Product, err error) {
+func (r *RepositoryImplTesting) Delete(id int) (ret *domain.Product, err error) {
 	//se puede dar que el id del producto no sea
 	//el mismo que el id de la ubicacion por lo tanto
 	//hay que separa estos valores
 
-	dbdata, _ := store.ReadAll("../products.json")
-
 	flag := false
 	index := 0
-	for i, v := range dbdata {
+	for i, v := range r.bd {
 		if v.ID == id {
 			index = i
 			fmt.Println("Encontrado")
 			//con el append de abajo borramo
-			dbdata = append(dbdata[:index], dbdata[index+1:]...)
-			store.WriteAll("../products.json", dbdata)
+			r.bd = append(r.bd[:index], r.bd[index+1:]...)
+
 			flag = true
 		}
 	}
@@ -99,14 +88,14 @@ func (r *RepositoryImpl) Delete(id int) (ret *domain.Product, err error) {
 	return
 }
 
-func (r *RepositoryImpl) PartialUpdate(id int, data map[string]interface{}) (ret *domain.Product, err error) {
+func (r *RepositoryImplTesting) PartialUpdate(id int, data map[string]interface{}) (ret *domain.Product, err error) {
 	fmt.Println("---------------------")
 	fmt.Println("-----------REPO----------")
 	flag := false
-	dbdata, _ := store.ReadAll("../products.json")
+
 	indice := 0
 	src := DataProductRepository{}
-	for i, v := range dbdata {
+	for i, v := range r.bd {
 		if v.ID == id {
 			indice = i
 			flag = true
@@ -194,18 +183,18 @@ func (r *RepositoryImpl) PartialUpdate(id int, data map[string]interface{}) (ret
 	}
 
 	//ahora agregamos el parche a la bd
-	dbdata[indice] = dtapche
-	store.WriteAll("../products.json", dbdata)
+	r.bd[indice] = dtapche
+
 	ret = &dtapche
 	return
 
 }
 
-func (r *RepositoryImpl) GetPriceMayor(price float64) (dt []domain.Product, err error) {
+func (r *RepositoryImplTesting) GetPriceMayor(price float64) (dt []domain.Product, err error) {
 	flag := false
-	dbdata, _ := store.ReadAll("../products.json")
+
 	var list []domain.Product
-	for _, product := range dbdata {
+	for _, product := range r.bd {
 		if product.Price > price {
 			flag = true
 			list = append(list, product)
@@ -220,11 +209,11 @@ func (r *RepositoryImpl) GetPriceMayor(price float64) (dt []domain.Product, err 
 
 }
 
-func (r *RepositoryImpl) GetById(id int) (ret *domain.Product, err error) {
+func (r *RepositoryImplTesting) GetById(id int) (ret *domain.Product, err error) {
 	flag := false
-	dbdata, _ := store.ReadAll("../products.json")
+
 	fmt.Println(id)
-	for _, v := range dbdata {
+	for _, v := range r.bd {
 		if v.ID == id {
 			ret = &v
 			//flag = true
@@ -241,26 +230,17 @@ func (r *RepositoryImpl) GetById(id int) (ret *domain.Product, err error) {
 
 	return
 }
+func (r *RepositoryImplTesting) SaveNewProduct(data domain.Product) (ret *domain.Product, err error) {
 
-func (r *RepositoryImpl) SaveNewProduct(data domain.Product) (ret *domain.Product, err error) {
-
-	dbdata, _ := store.ReadAll("../products.json")
-	indi_candidate := len(dbdata) + 1
-	for _, v := range dbdata {
+	indi_candidate := len(r.bd) + 1
+	for _, v := range r.bd {
 		if indi_candidate == v.ID {
 			indi_candidate++
 		}
-		if data.Code_value == v.Code_value {
-			err = errors.New("code value repeat")
-			return
-		}
-
 	}
 	//despues ya tengo indice
 	data.ID = indi_candidate
-	dbdata = append(dbdata, data)
-
-	store.WriteAll("../products.json", dbdata)
+	r.bd = append(r.bd, data)
 
 	return
 }

@@ -50,3 +50,8 @@ func (s *ProductServiceImpl) ServiGetPriceMayor(price float64) (dt []domain.Prod
 	dt, err = s.repository.GetPriceMayor(price)
 	return
 }
+
+func (s *ProductServiceImpl) ServiNewItem(data domain.Product) (ret *domain.Product, err error) {
+	ret, err = s.repository.SaveNewProduct(data)
+	return
+}

@@ -7,7 +7,7 @@ import (
 	"github.com/GabrielMaSosa/test_funcional/internal/domain"
 )
 
-func InitilizeBD(path string) (dt []*domain.Product, err error) {
+func InitilizeBD(path string) (dt []domain.Product, err error) {
 	fil, err1 := os.ReadFile(path)
 	if err1 != nil {
 		err = err1
