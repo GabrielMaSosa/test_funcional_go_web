@@ -35,19 +35,20 @@ func createServer() *gin.Engine {
 		},
 	}
 
-	repo := product.NewRepository(slice)
+	repo := product.NewRepositoryTesting(slice)
 	servi := product.NewServiceProduct(&repo)
 	hdler := NewHandlerProduct(servi)
 	//inicio server
 	server := gin.New()
 	productsrout := server.Group("/products")
-	productsrout.GET("/:id", hdler.GetProductByIdPatch())
+
+	Rutas(productsrout, hdler)
 	return server
 }
 
-func TestFuncionalHandlerProduct(t *testing.T) {
+func TestFuncionalHandlerProductGetByID(t *testing.T) {
 
-	t.Run("Happy path", func(t *testing.T) {
+	t.Run("Happy path get by id", func(t *testing.T) {
 		//arrange
 		//levanto servrer
 		expectedStatusCode := 200
@@ -67,7 +68,32 @@ func TestFuncionalHandlerProduct(t *testing.T) {
 
 		//assert
 		assert.Equal(t, expectedStatusCode, response.Code)
-		assert.Equal(t, string(expectBodty), response.Body.String(), response.Body.String())
+		assert.JSONEq(t, string(expectBodty), response.Body.String(), "error")
+		assert.Equal(t, expectedHeaders, response.Header())
+		//assert
+
+	})
+	t.Run("One error id negative get by id", func(t *testing.T) {
+		//arrange
+		//levanto servrer
+		expectedStatusCode := http.StatusBadRequest
+		expectBodty := `{"mesage": "Bad request2"}`
+
+		expectedHeaders := http.Header{
+			"Content-Type": []string{"application/json; charset=utf-8"},
+		}
+
+		//--> input
+		request := httptest.NewRequest(http.MethodGet, "/products/-1", nil)
+		request.Header.Add("token", "123456")
+		response := httptest.NewRecorder()
+		r := createServer()
+		//act
+		r.ServeHTTP(response, request)
+
+		//assert
+		assert.Equal(t, expectedStatusCode, response.Code)
+		assert.JSONEq(t, string(expectBodty), response.Body.String(), "error")
 		assert.Equal(t, expectedHeaders, response.Header())
 		//assert
 
